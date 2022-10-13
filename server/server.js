@@ -51,20 +51,17 @@ const server = app.listen(process.env.PORT, () => {
 // WebSockets
 const SokcetIO = require('socket.io');
 const io = SokcetIO(server);
-const SocketController = require('./sockets/index.sockets')
+const SocketController = require('./sockets/index.sockets');
+const { Socket } = require('dgram');
 
 io.on('connection', socket => {
 
-    console.log('Listening to connections - sockets');
-
     //Create Order
     SocketController.createOrder(socket, io);
-    //Update Order
-    SocketController.updateOrder(socket, io);
-    //Cancel Order
-    SocketController.cancelOrder(socket, io);
+    //Finalize Order
+    SocketController.finalizeOrder(socket, io);
     //Update Order Detail
-    SocketController.UpdateOrderDetail(socket, io);
-    // Disconnect
+    SocketController.updateOrderDetail(socket, io);
+    //Disconnect
     SocketController.disconnect(socket, io);
 })
