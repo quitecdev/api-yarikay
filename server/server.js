@@ -1,8 +1,13 @@
-require('./config/config');
+const NODE_ENV = process.env.NODE_ENV || 'dev'
+
+if (NODE_ENV == 'dev') {
+    require('dotenv').config();
+}
 
 const methodOverride = require('method-override');
 const express = require('express');
 const app = express();
+
 
 const cors = require('cors')
 app.use(cors())
@@ -39,8 +44,27 @@ app.use(require('./routes/index'));
 //Configuracion DB
 app.use(require('./controller/db.controller'));
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
     console.log('Escuchando puerto: ', process.env.PORT);
-	console.log(process.version);
 });
 
+// WebSockets
+const SokcetIO = require('socket.io');
+const io = SokcetIO(server);
+const SocketController = require('./sockets/index.sockets')
+
+io.on('connection', socket => {
+
+    console.log('Listening to connections - sockets');
+
+    //Create Order
+    SocketController.createOrder(socket, io);
+    //Update Order
+    SocketController.updateOrder(socket, io);
+    //Cancel Order
+    SocketController.cancelOrder(socket, io);
+    //Update Order Detail
+    SocketController.UpdateOrderDetail(socket, io);
+    // Disconnect
+    SocketController.disconnect(socket, io);
+})

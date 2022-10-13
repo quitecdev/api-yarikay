@@ -291,6 +291,7 @@ let getProductStock = (req, res) => {
                 name: "$product.name",
                 price: "$product.price",
                 state: "$product.state",
+                composed: "$product.composed",
                 existence: "$existence",
             }
         },
