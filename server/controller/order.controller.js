@@ -161,7 +161,7 @@ let getForDay = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "+00:00" } }
             }
         },
-        { $match: { branch: new ObjectId(branch), date: { $gte: start, $lt: end } } },
+        { $match: { branch: new ObjectId(branch) } },
         { $sort: { state: 1 } }
     ];
 
