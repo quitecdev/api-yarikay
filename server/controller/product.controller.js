@@ -107,9 +107,6 @@ let importProduct = (req, res) => {
     }
 }
 
-
-
-
 let deleteforId = (req, res) => {
     try {
         let id = req.params.id;
@@ -310,22 +307,6 @@ let getProductStock = (req, res) => {
         });
     });
 }
-
-
-// getChildren = function() {
-//     return this.model("Item").find({hierarchy: this._id, hierarchy_size: this.hierarchy_size+1})
-//     .exec()
-//     .then(result => {
-//         let childrenHierarchy = [];
-//             for(let child of children){
-//                 childrenHierarchy.push(child);
-//             }
-//             return childrenHierarchy;
-//     })
-//     .catch(err => {
-//         console.log("the error occured!", err)
-//     })
-// };
 
 
 module.exports = {

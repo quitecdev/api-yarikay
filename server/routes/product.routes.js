@@ -6,7 +6,7 @@ const app = express();
 
 app.post('/product', checkToken, ProductController.create);
 app.post('/product/import', checkToken, ProductController.importProduct);
-app.get('/products', checkToken, ProductController.getAll)
+app.get('/products', ProductController.getAll)
 app.get('/product/:id', checkToken, ProductController.getForId)
 app.get('/products/:branch', checkToken, ProductController.getProductStock)
 app.put('/product/:id', checkToken, ProductController.updateforId);

@@ -16,6 +16,9 @@ let orderSchema = new Schema({
     number: {
         type: Number
     },
+    name: {
+        type: String
+    },
     table: {
         type: Number,
         required: [true, 'Mesa es requerido']
@@ -49,6 +52,10 @@ let orderSchema = new Schema({
         state: {
             type: Number,
             default: 0
+        },
+        paid: {
+            type: Boolean,
+            default: false,
         }
     }],
     user: {
