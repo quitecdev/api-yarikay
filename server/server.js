@@ -50,7 +50,7 @@ const server = app.listen(process.env.PORT, () => {
 
 // WebSockets
 const SokcetIO = require('socket.io');
-const io = SokcetIO(server);
+const io = SokcetIO(server, { origin: '*:*' });
 const SocketController = require('./sockets/index.sockets');
 const { Socket } = require('dgram');
 

@@ -30,6 +30,9 @@ let branchSchema = new Schema({
     state: {
         type: Boolean,
         default: true,
+    },
+    numeration: {
+        type: Number
     }
 });
 

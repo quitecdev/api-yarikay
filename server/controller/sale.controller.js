@@ -10,11 +10,13 @@ let createInvoice = (req, res) => {
     let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
 
     let body = req.body;
+
     try {
 
         let sale = new SaleModel({
             branch: body.branch,
             documentType: body.documentType,
+            accessCode: body.accessCode,
             document: body.document,
             client: body.client,
             details: body.details,

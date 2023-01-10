@@ -20,6 +20,9 @@ let saleSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'DocumentType'
     },
+    accessCode: {
+        type: String,
+    },
     document: {
         type: String,
     },

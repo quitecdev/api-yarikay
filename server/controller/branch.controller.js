@@ -24,6 +24,7 @@ let create = (req, res) => {
                 prefacture: body.document.prefacture,
             },
             star: body.star,
+            numeration: body.numeration
         });
 
         branch.save((err, branch) => {
@@ -81,7 +82,7 @@ let updateforId = (req, res) => {
 
     let id = req.params.id;
 
-    let body = _.pick(req.body, ['name', 'location', 'document', 'star', 'state']);
+    let body = _.pick(req.body, ['name', 'location', 'document', 'star', 'state', 'numeration']);
 
     BranchModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, branch) => {
         if (err) {

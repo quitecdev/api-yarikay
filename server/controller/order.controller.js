@@ -9,6 +9,7 @@ let create = (req, res) => {
     try {
 
         let order = new OrderModel({
+            name: body.name,
             table: body.table,
             details: body.details,
             branch: body.branch,
@@ -74,7 +75,7 @@ let updateforId = (req, res) => {
     try {
         let id = req.params.id;
 
-        let body = _.pick(req.body, ['name', 'state']);
+        let body = _.pick(req.body, ['name', 'table', 'state']);
 
         OrderModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, order) => {
             if (err) {
@@ -223,6 +224,7 @@ let getOrderKitchen = (req, res) => {
                 quantity: "$details.quantity",
                 observation: "$details.observation",
                 composed: "$details.composed",
+                state: "$details.state",
             }
         },
         { $sort: { state: 1 } }
