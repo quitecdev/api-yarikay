@@ -45,6 +45,7 @@ let getFile = (req, res) => {
 let uploadFile = (req, res) => {
 
     const file = req.file;
+    console.log(req);
 
     var extension = getFileExtension(file.originalname);
     let filename = `${Math.random().toString(36).substring(2, 15)}.${extension}`;
@@ -75,14 +76,46 @@ let uploadFile = (req, res) => {
             filename: file.filename
         });
     });
-
 }
 
 let getFileExtension = (filename) => {
     return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined;
 }
 
+
+let uploadFileBase = (req, res) => {
+    const base64String = req.body.base64image;
+
+    const buffer = Buffer.from(base64String.substring(base64String.indexOf(',') + 1));
+    let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`;
+
+    var contentType = "application/pdf";
+    var size = buffer.length;
+
+    let newFile = FileModel({
+        filename: filename,
+        metadata: base64String,
+        contentType: contentType,
+        size: size
+    });
+
+    newFile.save((err, file) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        res.json({
+            ok: true,
+            filename: file.filename
+        });
+    });
+}
+
 module.exports = {
     getFile,
-    uploadFile
+    uploadFile,
+    uploadFileBase
 }
