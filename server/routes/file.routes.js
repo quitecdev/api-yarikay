@@ -8,5 +8,7 @@ var upload = multer();
 app.get('/file/document/:filename', FileController.getFile);
 app.get('/file/:filename', FileController.getFile);
 app.post('/file/upload', upload.single('file'), FileController.uploadFile);
+app.post('/file/upload/base64', FileController.uploadFileBase);
+
 
 module.exports = app;
