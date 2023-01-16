@@ -146,6 +146,7 @@ let getDetailSales = (req, res) => {
             $project: {
                 _id: "$_id",
                 documentType: "$documentType.name",
+                accessCode: "$accessCode",
                 document: "$document",
                 attachment: "$attachment",
                 dni: "$client.dni",
