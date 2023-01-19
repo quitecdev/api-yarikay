@@ -13,4 +13,7 @@ app.put('/product/:id', checkToken, ProductController.updateforId);
 app.delete('/product/:id', checkToken, ProductController.deleteforId);
 
 
+app.get('/products/update/name', ProductController.updateNameProduct);
+
+
 module.exports = app;

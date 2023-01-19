@@ -11,6 +11,7 @@ let create = (req, res) => {
         let order = new OrderModel({
             name: body.name,
             table: body.table,
+            date: body.date,
             details: body.details,
             branch: body.branch,
             user: body.user,
@@ -223,6 +224,7 @@ let getOrderKitchen = (req, res) => {
                 name: "$details.name",
                 quantity: "$details.quantity",
                 observation: "$details.observation",
+                timer: "$date",
                 composed: "$details.composed",
                 state: "$details.state",
             }
@@ -244,6 +246,27 @@ let getOrderKitchen = (req, res) => {
 
 }
 
+let addDetailOrder = (req, res) => {
+
+    let body = req.body;
+
+    let id = req.params.id;
+
+    OrderModel
+        .findOneAndUpdate({ "_id": id }, { $push: { "details": body } }, { safe: true, upsert: true, new: true },
+            (err, order) => {
+                if (err) {
+                    return res.status(400).json({
+                        ok: false,
+                        err
+                    });
+                }
+                res.json({
+                    order
+                });
+            });
+}
+
 module.exports = {
     create,
     updateforId,
@@ -252,5 +275,6 @@ module.exports = {
     getForId,
     getForDay,
     updateStateOrder,
-    getOrderKitchen
+    getOrderKitchen,
+    addDetailOrder
 }

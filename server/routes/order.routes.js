@@ -11,6 +11,8 @@ app.get('/ordersday/:branch', OrderController.getForDay);
 app.get('/orderskitchen/:branch', OrderController.getOrderKitchen);
 app.put('/order/:id', checkToken, OrderController.updateforId);
 app.put('/order/state/:id/:state', OrderController.updateStateOrder);
+app.put('/order/add/:id', OrderController.addDetailOrder);
+
 app.delete('/order/:id', checkToken, OrderController.deleteforId);
 
 module.exports = app;

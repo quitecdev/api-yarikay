@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const uniqueValidater = require('mongoose-unique-validator');
+
 const moment = require('moment-timezone');
-const dateLocal = moment.tz(Date.now(), "America/Guayaquil");
+const dateLocal = moment.tz(Date.now(), "America/Guayaquil").format();
 const timeZone = require('mongoose-timezone');
 
 let Schema = mongoose.Schema;
@@ -45,6 +46,10 @@ let orderSchema = new Schema({
         observation: {
             type: String,
         },
+        timer: {
+            type: Date,
+            default: dateLocal
+        },
         composed: {
             type: Boolean,
             default: false,
@@ -70,6 +75,6 @@ let orderSchema = new Schema({
 
 orderSchema
     .plugin(AutoIncrement, { id: 'number_seq', inc_field: 'number' })
-    .plugin(timeZone, { paths: ['date'] });
+    .plugin(timeZone, { paths: ['date'], });
 
 module.exports = mongoose.model('Order', orderSchema);

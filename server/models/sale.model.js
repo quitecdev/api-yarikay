@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const uniqueValidater = require('mongoose-unique-validator');
 const moment = require('moment-timezone');
-const dateLocal = moment.tz(Date.now(), "America/Guayaquil");
+const dateLocal = moment.tz(Date.now(), "America/Guayaquil").format();
 const timeZone = require('mongoose-timezone');
 
 let state = {
@@ -156,8 +156,8 @@ let saleSchema = new Schema({
     }
 });
 
-saleSchema.plugin(uniqueValidater, {
-    message: '{PATH} deber ser único'
-}).plugin(timeZone, { paths: ['date'] });
+saleSchema
+    .plugin(uniqueValidater, { message: '{PATH} deber ser único' })
+    .plugin(timeZone, { paths: ['date'], });;
 
 module.exports = mongoose.model('Sale', saleSchema);

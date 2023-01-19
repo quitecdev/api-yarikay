@@ -1,20 +1,21 @@
 const Global = require('./global')
 
 let createOrder = (cliente, io) => {
+
     cliente.on(Global.createOrder, (payload) => {
-        io.emit(Global.alertnewOrder);
+        io.emit(Global.alertnewOrder, payload);
     });
 }
 
 let finalizeOrder = (cliente, io) => {
     cliente.on(Global.finalizeOrder, (payload) => {
-        io.emit(Global.alertFinalizeOrder);
+        io.emit(Global.alertFinalizeOrder, payload);
     });
 }
 
 let updateOrderDetail = (cliente, io) => {
     cliente.on(Global.updateOrderDetail, (payload) => {
-        io.emit(Global.alertUpdateOrderDetail);
+        io.emit(Global.alertUpdateOrderDetail, payload);
     });
 }
 
@@ -23,6 +24,7 @@ let disconnect = (cliente, io) => {
         console.log('Disconnected client');
     });
 }
+
 
 
 module.exports = {

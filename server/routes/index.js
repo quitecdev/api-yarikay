@@ -29,4 +29,7 @@ app.use(require('./prefacture.routes'));
 app.use(require('./workshop.routes'));
 app.use(require('./order.routes'));
 
+app.use(require('./examples.routes'));
+
+
 module.exports = app;
