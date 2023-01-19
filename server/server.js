@@ -18,6 +18,8 @@ const path = require('path');
 
 var http = require("http").Server(app);
 
+const Global = require('./sockets/global')
+
 app.use(function(req, res, next) {
 
     res.header("Access-Control-Allow-Origin", "*");
@@ -56,7 +58,16 @@ const { Socket } = require('dgram');
 
 io.on('connection', socket => {
 
-    //Create Order
+    console.log('Connected client');
+
+    const handshake = socket.id;
+
+    let { nameRoom } = socket.handshake.query;
+
+    console.log(`Nuevo dispositivo: ${handshake} conentado a la ${nameRoom}`);
+
+    socket.join(nameRoom);
+
     SocketController.createOrder(socket, io);
     //Finalize Order
     SocketController.finalizeOrder(socket, io);

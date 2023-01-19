@@ -309,6 +309,49 @@ let getProductStock = (req, res) => {
 }
 
 
+let updateNameProduct = (req, res) => {
+
+    ProductModel
+        .find({ state: true })
+        .populate({
+            path: 'category',
+            model: 'Category'
+        })
+        .populate({
+            path: 'mark',
+            model: 'Mark'
+        })
+        .populate({
+            path: 'pattern',
+            model: 'Pattern'
+        })
+        .exec((err, products) => {
+
+            // products.forEach(product => {
+
+            //     let id = product._id;
+            //     let name = product.name;
+            //     let category = product.category.name;
+            //     let newName = `${category} ${name}`;
+
+            //     ProductModel.findById(id, { name: newName });
+
+            // });
+
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+            res.json({
+                ok: true,
+                products
+            });
+        });
+}
+
+
 module.exports = {
     create,
     importProduct,
@@ -317,4 +360,5 @@ module.exports = {
     getAll,
     getForId,
     getProductStock,
+    updateNameProduct,
 }
