@@ -253,7 +253,7 @@ let addDetailOrder = (req, res) => {
     let id = req.params.id;
 
     OrderModel
-        .findOneAndUpdate({ "_id": id }, { $push: { "details": body } }, { safe: true, upsert: true, new: true },
+        .findOneAndUpdate({ "_id": id }, { $push: { "details": body.details } }, { safe: true, upsert: true, new: true },
             (err, order) => {
                 if (err) {
                     return res.status(400).json({
