@@ -25,8 +25,6 @@ let disconnect = (cliente, io) => {
     });
 }
 
-
-
 module.exports = {
     disconnect,
     createOrder,

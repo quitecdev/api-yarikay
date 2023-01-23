@@ -4,7 +4,6 @@ const moment = require('moment-timezone');
 const ObjectId = require('mongodb').ObjectID;
 const _ = require('underscore');
 
-//#region 
 let getAllPay = (req, res) => {
     try {
 
