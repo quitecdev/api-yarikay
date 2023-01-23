@@ -267,6 +267,20 @@ let addDetailOrder = (req, res) => {
             });
 }
 
+
+// let resetCounter = (req, res) => {
+
+//     console.log("Reset");
+
+//     OrderModel.counterReset('number_seq', function(err) {
+//         console.log(err);
+//     });
+
+//     res.json({
+//         ok: true
+//     });
+// }
+
 module.exports = {
     create,
     updateforId,
@@ -276,5 +290,5 @@ module.exports = {
     getForDay,
     updateStateOrder,
     getOrderKitchen,
-    addDetailOrder
+    addDetailOrder,
 }
