@@ -21,10 +21,10 @@ let pdfExample = (req, res) => {
     let id = req.params.id;
 
     let query = [
-        { $match: { document: id } },
+        { $match: { _id: new ObjectId(id) } },
     ];
 
-    PrefactureModel.aggregate(query).exec((err, prefactureResp) => {
+    SaleModel.aggregate(query).exec((err, prefactureResp) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -32,185 +32,224 @@ let pdfExample = (req, res) => {
             });
         }
 
+        if (prefactureResp) {
+            let sale = prefactureResp[0];
 
-        let sale = prefactureResp[0];
+            let document = sale.document;
+            let client = sale.client;
+            let details = sale.details;
+            let due = sale.due;
 
-        let document = sale.document;
-        let client = sale.client;
-        let details = sale.details;
-        let due = sale.due;
+            let stillUtc = moment.utc(sale.date).toDate();
+            let date = moment(stillUtc).local().format('YYYY-MM-DD HH:mm');
 
-        let stillUtc = moment.utc(sale.date).toDate();
-        let date = moment(stillUtc).local().format('YYYY-MM-DD HH:mm');
+            let column = [];
+            column.push({ text: 'Cod.', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Descripción', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Cant.', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'V. Unitario', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Total', style: 'tableHeader', fontSize: 10 });
 
-        let column = [];
-        column.push({ text: 'Cod.', style: 'tableHeader', fontSize: 10 });
-        column.push({ text: 'Descripción', style: 'tableHeader', fontSize: 10 });
-        column.push({ text: 'Cant.', style: 'tableHeader', fontSize: 10 });
-        column.push({ text: 'V. Unitario', style: 'tableHeader', fontSize: 10 });
-        column.push({ text: 'Total', style: 'tableHeader', fontSize: 10 });
+            let tableDetails = [];
+            tableDetails.push(column);
 
-        let tableDetails = [];
-        tableDetails.push(column);
+            details.forEach(product => {
+                let cod = product.cod;
+                let name = product.name;
+                let quantity = product.quantity;
+                let unitary = product.unitary;
+                let subotal = product.subotal;
+                let detail = [];
+                detail.push({ text: `${cod}`, fontSize: 9 });
+                detail.push({ text: `${name}`, fontSize: 9 });
+                detail.push({ text: `${quantity}`, fontSize: 9, alignment: 'right' });
+                detail.push({ text: `${currencyFormatter.format(unitary, { code: 'USD',precision: 3 })}`, fontSize: 9, alignment: 'right' });
+                detail.push({ text: `${currencyFormatter.format(subotal, { code: 'USD',precision: 3 })}`, fontSize: 9, alignment: 'right' });
 
-        details.forEach(product => {
-            let cod = product.cod;
-            let name = product.name;
-            let quantity = product.quantity;
-            let unitary = product.unitary;
-            let subotal = product.subotal;
-            let detail = [];
-            detail.push({ text: `${cod}`, fontSize: 10 });
-            detail.push({ text: `${name}`, fontSize: 10 });
-            detail.push({ text: `${quantity}`, fontSize: 10, alignment: 'right' });
-            detail.push({ text: `${currencyFormatter.format(unitary, { code: 'USD',precision: 3 })}`, fontSize: 10, alignment: 'right' });
-            detail.push({ text: `${currencyFormatter.format(subotal, { code: 'USD',precision: 3 })}`, fontSize: 10, alignment: 'right' });
+                tableDetails.push(detail);
+            });
 
-            tableDetails.push(detail);
-        });
+            var docDefinition = {
+                pageSize: 'A5',
+                pageMargins: [20, 20, 20, 20],
+                content: [{
+                        columns: [
+                            [{
+                                    image: 'data:image/png;base64,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',
+                                    width: 80,
+                                },
+                                {
+                                    text: [
+                                        { text: 'Dirección Matriz:', fontSize: 8, bold: true },
+                                        { text: `ISLA SANTA FE N43-168 y AV. RIO COCA`, fontSize: 8 },
 
-        var docDefinition = {
-            pageSize: 'A4',
-            pageMargins: [35, 35, 35, 35],
-            content: [{
-                    columns: [{
-                            image: 'data:image/png;base64,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',
-                            width: 104,
-                            height: 38,
-                        },
-                        {
-                            text: [
-                                { text: 'Nº Prefactura: ', style: 'note' },
-                                { text: `${document}`, style: 'note' },
+                                    ],
+                                },
+                                {
+                                    text: [
+                                        { text: 'Dirección:', fontSize: 8, bold: true },
+                                        { text: `INTEROCEANICA SN y AV. SIMON BOLIVAR`, fontSize: 8 },
 
+                                    ],
+                                }
                             ],
-                        }
-                    ],
-                    margin: [0, 10, 0, 25],
-                },
-                {
-                    text: [
-                        { text: 'Fecha :', bold: true, margin: [0, 20] },
-                        ` ${date} \n\n`,
-                        { text: 'CI/RUC :', bold: true, margin: [0, 20] },
-                        ` ${client.dni} \n\n`,
-                        { text: 'Nombre :', bold: true, margin: [0, 20] },
-                        ` ${client.name} \n\n`,
-                        { text: 'Teléfono :', bold: true, margin: [0, 20] },
-                        ` ${client.phone} \n\n`,
-                        { text: 'Dirección :', bold: true, margin: [0, 20] },
-                        ` ${client.address} \n`,
-                    ],
-                    style: 'header'
-                },
-                {
-                    style: 'tableDetails',
-                    table: {
-                        headerRows: 1,
-                        widths: [80, 220, 25, 60, 60],
-                        body: tableDetails,
-                        alignment: "center"
-                    },
-                    layout: 'lightHorizontalLines'
-                },
-                {
-                    style: 'tableDue',
-                    table: {
-                        headerRows: 1,
-                        widths: [80, 220, 25, 60, 60],
-                        body: [
-                            ['', '', '', '', ''],
-                            [
-                                { text: '' },
-                                { text: '' },
-                                { text: '' },
-                                { text: `Subtotal`, alignment: 'right', fontSize: 10 },
-                                { text: `${currencyFormatter.format(due.subTotal, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 10 },
-                            ],
-                            [
-                                { text: '' },
-                                { text: '' },
-                                { text: '' },
-                                { text: `Iva 12%`, alignment: 'right', fontSize: 10 },
-                                { text: `${currencyFormatter.format(due.tax, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 10 },
-                            ],
-                            [
-                                { text: '' },
-                                { text: '' },
-                                { text: '' },
-                                { text: `Total`, alignment: 'right', bold: true, fontSize: 10 },
-                                { text: `${currencyFormatter.format(due.total, { code: 'USD',precision: 2 })}`, alignment: 'right', bold: true, fontSize: 10 },
-                            ],
+                            [{
+                                    text: [
+                                        { text: 'Nº Factura: ', style: 'numberDocument', },
+                                        { text: `${document}`, style: 'numberDocument' },
+
+                                    ],
+                                },
+                                {
+                                    text: [
+                                        { text: 'R.U.C.:', style: 'fontbold9' },
+                                        { text: `1711826790001`, style: 'font9' },
+
+                                    ],
+                                },
+                                { text: 'FERNANDEZ ORMAZA JUAN CARLOS', fontSize: 10, bold: true },
+
+                                {
+                                    text: [
+                                        { text: 'Número Autorización:', style: 'fontbold9' },
+
+                                    ],
+                                },
+                                {
+                                    text: [
+                                        { text: `${sale.accessCode}`, fontSize: 7 },
+
+                                    ],
+                                },
+                                { text: 'CONTRIBUYENTE RÉGIMEN RIMPE', fontSize: 9, bold: true },
+                                { text: 'OBLIGADO A LLEVAR CONTABILIDAD SI', fontSize: 9, bold: true },
+                            ]
                         ],
-                        alignment: "center"
+                        margin: [0, 0, 0, 15],
+
                     },
-                    layout: 'headerLineOnly'
-                },
-                {
-                    absolutePosition: { x: 120, y: 760 },
-                    columns: [
-                        [
-                            { canvas: [{ type: 'line', x1: 130, y1: 0, x2: 0, y2: 0, lineWidth: 0.7 }] },
-                            { text: 'Firma Autorizada ', margin: [25, 5] },
-                        ],
-                        [
-                            { canvas: [{ type: 'line', x1: 130, y1: 0, x2: 0, y2: 0, lineWidth: 0.7 }] },
-                            { text: 'Firma Cliente ', margin: [25, 5] },
-                        ]
-
-                    ]
-                },
-            ],
-            footer: {
-                columns: [
-
                     {
-                        alignment: 'right',
-                        text: `${document}`,
-                        fontSize: 8,
+                        text: [
+                            { text: 'Fecha :', bold: true, margin: [0, 20] },
+                            ` ${date} \n\n`,
+                            { text: 'CI/RUC :', bold: true, margin: [0, 20] },
+                            ` ${client.dni} \n\n`,
+                            { text: 'Nombre :', bold: true, margin: [0, 20] },
+                            ` ${client.name} \n\n`,
+                            { text: 'Teléfono :', bold: true, margin: [0, 20] },
+                            ` ${client.phone} \n\n`,
+                            { text: 'Dirección :', bold: true, margin: [0, 20] },
+                            ` ${client.address} \n`,
+                        ],
+                        style: 'header'
+                    },
+                    {
+                        style: 'tableDetails',
+                        table: {
+                            headerRows: 1,
+                            widths: [50, 120, 25, 60, 60],
+                            body: tableDetails,
+                            alignment: "center"
+                        },
+                        layout: 'lightHorizontalLines'
+                    },
+                    {
+                        style: 'tableDue',
+                        table: {
+                            headerRows: 1,
+                            widths: [50, 120, 25, 60, 60],
+                            body: [
+                                ['', '', '', '', ''],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Subtotal`, alignment: 'right', fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.subTotal, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
+                                ],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Iva 12%`, alignment: 'right', fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.tax, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
+                                ],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Total`, alignment: 'right', bold: true, fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.total, { code: 'USD',precision: 2 })}`, alignment: 'right', bold: true, fontSize: 9 },
+                                ],
+                            ],
+                            alignment: "center"
+                        },
+                        layout: 'headerLineOnly'
                     }
                 ],
-                margin: [20, 0]
-            },
-            styles: {
-                header: {
-                    fontSize: 10,
-                    lineHeight: 0.7,
-                },
-                tableHeader: {
-                    bold: true,
-                    fontSize: 10,
-                    color: 'black'
-                },
-                tableDetails: {
-                    margin: [0, 10, 0, 0],
-                    fontSize: 10,
-                },
-                tableDue: {
-                    margin: [0, 0, 0, 5],
-                    fontSize: 10,
-                },
-                note: {
-                    fontSize: 15,
-                    color: 'red',
-                    alignment: 'right',
-                    bold: true,
-                },
+                footer: {
+                    columns: [
 
-            }
-        };
+                        {
+                            alignment: 'right',
+                            text: `${document}`,
+                            fontSize: 8,
+                        }
+                    ],
+                    margin: [20, 0]
+                },
+                styles: {
+                    header: {
+                        fontSize: 9,
+                        lineHeight: 0.7,
+                    },
+                    tableHeader: {
+                        bold: true,
+                        fontSize: 9,
+                        color: 'black'
+                    },
+                    tableDetails: {
+                        margin: [0, 10, 0, 0],
+                        fontSize: 9,
+                    },
+                    tableDue: {
+                        margin: [0, 0, 0, 5],
+                        fontSize: 9,
+                    },
+                    numberDocument: {
+                        fontSize: 11,
+                        bold: true,
+                        margin: [0, 50],
+                    },
+                    fontbold9: {
+                        fontSize: 9,
+                        bold: true,
+                    },
+                    font9: {
+                        fontSize: 9,
+                    }
 
 
-        const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-        pdfDocGenerator.getBase64((data) => {
+                }
+            };
 
-            var pdf = Buffer.from(data, 'base64');
-            res.writeHead(200, {
-                'Content-Type': 'application/pdf',
-                'Content-Length': pdf.length
+
+            const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+            pdfDocGenerator.getBase64((data) => {
+
+                var pdf = Buffer.from(data, 'base64');
+                res.writeHead(200, {
+                    'Content-Type': 'application/pdf',
+                    'Content-Length': pdf.length
+                });
+                res.end(pdf);
             });
-            res.end(pdf);
-        });
+        } else {
+            return res.status(400).json({
+                ok: false,
+                err: 'No se ha encontrado registros'
+            });
+        }
 
     });
 }
@@ -222,8 +261,6 @@ let pdfInvoice = (req, sale, filename) => {
     let details = sale.details;
     let due = sale.due;
     let payment = sale.payment;
-
-    let qrCode = `${req.protocol}://${req.get('host')}/file/document/${filename}`;
 
     let stillUtc = moment.utc(sale.date).toDate();
     let date = moment(stillUtc).local().format('YYYY-MM-DD HH:mm');
@@ -255,9 +292,65 @@ let pdfInvoice = (req, sale, filename) => {
     });
 
     var docDefinition = {
-        pageSize: 'A4',
-        pageMargins: [45, 150, 50, 30],
+        pageSize: 'A5',
+        pageMargins: [20, 20, 20, 20],
         content: [{
+                columns: [
+                    [{
+                            image: 'data:image/png;base64,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',
+                            width: 80,
+                        },
+                        {
+                            text: [
+                                { text: 'Dirección Matriz:', fontSize: 8, bold: true },
+                                { text: `ISLA SANTA FE N43-168 y AV. RIO COCA`, fontSize: 8 },
+
+                            ],
+                        },
+                        {
+                            text: [
+                                { text: 'Dirección:', fontSize: 8, bold: true },
+                                { text: `INTEROCEANICA SN y AV. SIMON BOLIVAR`, fontSize: 8 },
+
+                            ],
+                        }
+                    ],
+                    [{
+                            text: [
+                                { text: 'Nº Factura: ', style: 'numberDocument', },
+                                { text: `${document}`, style: 'numberDocument' },
+
+                            ],
+                        },
+                        {
+                            text: [
+                                { text: 'R.U.C.:', style: 'fontbold9' },
+                                { text: `1711826790001`, style: 'font9' },
+
+                            ],
+                        },
+                        { text: 'FERNANDEZ ORMAZA JUAN CARLOS', fontSize: 10, bold: true },
+
+                        {
+                            text: [
+                                { text: 'Número Autorización:', style: 'fontbold9' },
+
+                            ],
+                        },
+                        {
+                            text: [
+                                { text: `${sale.accessCode}`, fontSize: 7 },
+
+                            ],
+                        },
+                        { text: 'CONTRIBUYENTE RÉGIMEN RIMPE', fontSize: 9, bold: true },
+                        { text: 'OBLIGADO A LLEVAR CONTABILIDAD SI', fontSize: 9, bold: true },
+                    ]
+                ],
+                margin: [0, 0, 0, 15],
+
+            },
+            {
                 text: [
                     { text: 'Fecha :', bold: true, margin: [0, 20] },
                     ` ${date} \n\n`,
@@ -272,12 +365,11 @@ let pdfInvoice = (req, sale, filename) => {
                 ],
                 style: 'header'
             },
-            //{ "qr": `${qrCode}`, fit: 50, margin: [0, 10, 0, 10], },
             {
                 style: 'tableDetails',
                 table: {
                     headerRows: 1,
-                    widths: [80, 220, 25, 60, 60],
+                    widths: [50, 120, 25, 60, 60],
                     body: tableDetails,
                     alignment: "center"
                 },
@@ -287,36 +379,35 @@ let pdfInvoice = (req, sale, filename) => {
                 style: 'tableDue',
                 table: {
                     headerRows: 1,
-                    widths: [80, 220, 25, 60, 60],
+                    widths: [50, 120, 25, 60, 60],
                     body: [
                         ['', '', '', '', ''],
                         [
-                            { text: 'Efectivo:', fontSize: 10 },
-                            { text: `${currencyFormatter.format(payment.cash, { code: 'USD',precision: 2 })}`, fontSize: 10 },
-
                             { text: '' },
-                            { text: `Subtotal`, alignment: 'right', fontSize: 10 },
-                            { text: `${currencyFormatter.format(due.subTotal, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 10 },
+                            { text: '' },
+                            { text: '' },
+                            { text: `Subtotal`, alignment: 'right', fontSize: 9 },
+                            { text: `${currencyFormatter.format(due.subTotal, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
                         ],
                         [
-                            { text: 'Dinero Electrónico:', fontSize: 10 },
-                            { text: `${currencyFormatter.format(payment.electronic, { code: 'USD',precision: 2 })}`, fontSize: 10 },
                             { text: '' },
-                            { text: `Iva 12%`, alignment: 'right', fontSize: 10 },
-                            { text: `${currencyFormatter.format(due.tax, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 10 },
+                            { text: '' },
+                            { text: '' },
+                            { text: `Iva 12%`, alignment: 'right', fontSize: 9 },
+                            { text: `${currencyFormatter.format(due.tax, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
                         ],
                         [
-                            { text: 'Tarjeta Débito/Crédito', fontSize: 10 },
-                            { text: `${currencyFormatter.format(payment.card, { code: 'USD',precision: 2 })}`, fontSize: 10 },
                             { text: '' },
-                            { text: `Total`, alignment: 'right', bold: true, fontSize: 10 },
-                            { text: `${currencyFormatter.format(due.total, { code: 'USD',precision: 2 })}`, alignment: 'right', bold: true, fontSize: 10 },
+                            { text: '' },
+                            { text: '' },
+                            { text: `Total`, alignment: 'right', bold: true, fontSize: 9 },
+                            { text: `${currencyFormatter.format(due.total, { code: 'USD',precision: 2 })}`, alignment: 'right', bold: true, fontSize: 9 },
                         ],
                     ],
                     alignment: "center"
                 },
                 layout: 'headerLineOnly'
-            },
+            }
         ],
         footer: {
             columns: [
@@ -331,22 +422,35 @@ let pdfInvoice = (req, sale, filename) => {
         },
         styles: {
             header: {
-                fontSize: 10,
+                fontSize: 9,
                 lineHeight: 0.7,
             },
             tableHeader: {
                 bold: true,
-                fontSize: 10,
+                fontSize: 9,
                 color: 'black'
             },
             tableDetails: {
                 margin: [0, 10, 0, 0],
-                fontSize: 10,
+                fontSize: 9,
             },
             tableDue: {
                 margin: [0, 0, 0, 5],
-                fontSize: 10,
+                fontSize: 9,
             },
+            numberDocument: {
+                fontSize: 11,
+                bold: true,
+                margin: [0, 50],
+            },
+            fontbold9: {
+                fontSize: 9,
+                bold: true,
+            },
+            font9: {
+                fontSize: 9,
+            }
+
 
         }
     };
