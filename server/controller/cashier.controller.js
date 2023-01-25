@@ -10,7 +10,6 @@ let create = (req, res) => {
 
         let cashier = new CashierModel({
             branch: body.branch,
-            date: body.date,
             opening: {
                 cash: body.opening.cash,
                 electronic: body.opening.electronic,
