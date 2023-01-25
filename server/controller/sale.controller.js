@@ -79,7 +79,6 @@ let createNote = (req, res) => {
             documentType: body.documentType,
             document: body.document,
             client: body.client,
-            date: body.date,
             details: body.details,
             due: {
                 subTotal: body.due.subTotal,

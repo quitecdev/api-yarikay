@@ -366,6 +366,8 @@ let pdfInvoice = (req, sale, filename) => {
                     ` ${client.dni} \n\n`,
                     { text: 'Nombre :', bold: true, margin: [0, 20] },
                     ` ${client.name} \n\n`,
+                    { text: 'Correo :', bold: true, margin: [0, 20] },
+                    ` ${client.email} \n\n`,
                     { text: 'Teléfono :', bold: true, margin: [0, 20] },
                     ` ${client.phone} \n\n`,
                     { text: 'Dirección :', bold: true, margin: [0, 20] },
