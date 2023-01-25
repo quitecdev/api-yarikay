@@ -206,7 +206,7 @@ let getOrderKitchen = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "-05:00" } }
             }
         },
-        { $match: { branch: new ObjectId(branch), state: 0 } },
+        { $match: { branch, state: 0 } },
         { $unwind: '$details' },
         { $match: { 'details.state': 0, 'details.composed': true }, },
         {
