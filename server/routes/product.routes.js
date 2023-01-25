@@ -1,7 +1,8 @@
 const express = require('express');
 const { checkToken } = require('../middlewares/authentication');
 const ProductController = require('../controller/product.controller');
-
+var multer = require('multer');
+var upload = multer();
 const app = express();
 
 app.post('/product', checkToken, ProductController.create);
@@ -14,6 +15,7 @@ app.delete('/product/:id', checkToken, ProductController.deleteforId);
 
 
 app.get('/products/update/name', ProductController.updateNameProduct);
+app.post('/product/xls', upload.single('file'), ProductController.UpdateForExcel);
 
 
 module.exports = app;

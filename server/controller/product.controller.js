@@ -3,6 +3,9 @@ const StockModel = require('../models/stock.model');
 const StockController = require('../controller/stock.controller');
 const ObjectId = require('mongodb').ObjectID;
 
+const xlsx = require('xlsx');
+var multer = require('multer');
+
 const _ = require('underscore');
 const { result } = require('underscore');
 
@@ -350,6 +353,39 @@ let updateNameProduct = (req, res) => {
 }
 
 
+let UpdateForExcel = (req, res) => {
+
+    const file = req.file;
+
+    let workbook = xlsx.read(file.buffer, { type: "buffer" });
+    var sheet_name_list = workbook.SheetNames;
+    var xlData = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+
+    xlData.forEach(async product => {
+        // var cod = product.CODIGO;
+        // var price = product.PRECIO;
+        // var unitari = (Math.round(Number(price) * 100) / 100) / 1.12;
+        // var composed = product.PREPARACION
+        // var filter = { cod };
+        // var update = { composed, price: { purchase: unitari, sale: price, minimum: unitari, iva: true } };
+
+        // let doc = await ProductModel.findOneAndUpdate(filter, update, {
+        //     returnOriginal: false
+        // });
+
+        // //let doc = await ProductModel.exists(filter);
+
+        // console.log(cod, doc);
+    });
+
+
+
+    res.json({
+        ok: true,
+        xlData
+    });
+}
+
 module.exports = {
     create,
     importProduct,
@@ -359,4 +395,5 @@ module.exports = {
     getForId,
     getProductStock,
     updateNameProduct,
+    UpdateForExcel
 }
