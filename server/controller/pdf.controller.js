@@ -185,7 +185,15 @@ let pdfExample = (req, res) => {
                             alignment: "center"
                         },
                         layout: 'headerLineOnly'
-                    }
+                    },
+                    {
+                        text: [
+                            { text: 'Observación: ', fontSize: 9, bold: true },
+                            { text: `${sale.observations}`, fontSize: 9 },
+
+                        ],
+                        absolutePosition: { x: 20, y: 450 }
+                    },
                 ],
                 footer: {
                     columns: [
@@ -407,7 +415,15 @@ let pdfInvoice = (req, sale, filename) => {
                     alignment: "center"
                 },
                 layout: 'headerLineOnly'
-            }
+            },
+            {
+                text: [
+                    { text: 'Observación: ', fontSize: 9, bold: true },
+                    { text: `${sale.observations}`, fontSize: 9 },
+
+                ],
+                absolutePosition: { x: 20, y: 450 }
+            },
         ],
         footer: {
             columns: [

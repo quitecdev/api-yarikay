@@ -145,9 +145,7 @@ let updateforId = (req, res) => {
         let id = req.params.id;
 
         let body = _.pick(req.body, ['cod', 'mark', 'pattern', 'category', 'name', 'composed', 'price', 'tags', 'description', 'detail', 'images', 'state']);
-        // console.log(body);
 
-        console.log(body);
         ProductModel.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, product) => {
             if (err) {
                 return res.status(400).json({

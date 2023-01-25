@@ -37,7 +37,8 @@ let createInvoice = (req, res) => {
             fee: body.fee,
             user: body.user,
             attachment: filename,
-            prepaid: body.prepaid
+            prepaid: body.prepaid,
+            observations: body.observations
         });
 
         PdfController.pdfInvoice(req, body, filename);

@@ -153,6 +153,9 @@ let saleSchema = new Schema({
     state: {
         type: Boolean,
         default: true,
+    },
+    observations: {
+        type: String
     }
 });
 
