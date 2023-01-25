@@ -11,7 +11,6 @@ let create = (req, res) => {
         let order = new OrderModel({
             name: body.name,
             table: body.table,
-            date: moment.tz(Date.now(), "America/Guayaquil").format(),
             details: body.details,
             branch: body.branch,
             user: body.user,
