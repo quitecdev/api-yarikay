@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const uniqueValidater = require('mongoose-unique-validator');
 
-const moment = require('moment-timezone');
-const dateLocal = moment.tz(Date.now(), "America/Guayaquil");
 const timeZone = require('mongoose-timezone');
 
 let Schema = mongoose.Schema;
@@ -20,7 +18,7 @@ let kardexSchema = new Schema({
     },
     date: {
         type: Date,
-        default: dateLocal
+        default: new Date()
     },
     action: {
         type: Schema.ObjectId,

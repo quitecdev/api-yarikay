@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const uniqueValidater = require('mongoose-unique-validator');
 
-const moment = require('moment-timezone');
-const dateLocal = moment.tz(Date.now(), "America/Guayaquil").format();
 const timeZone = require('mongoose-timezone');
 
 let Schema = mongoose.Schema;
@@ -14,7 +12,7 @@ let cashierSchema = new Schema({
     },
     date: {
         type: Date,
-        dateLocal
+        default: new Date()
     },
     opening: {
         cash: {

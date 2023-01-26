@@ -360,15 +360,17 @@ let getForId = (req, res) => {
 let getFilterSales = (req, res) => {
     let branch = req.params.branch;
 
-    const dateStart = req.query.star;
-    const dateEnd = req.query.end;
+
+    const dateStart = moment.tz(req.query.star, "America/Guayaquil");
+    const dateEnd = moment.tz(req.query.end, "America/Guayaquil");
+
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
 
     let query = [{
             $addFields: {
-                date: { $dateToString: { date: "$date", timezone: "+00:00" } }
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
         { $match: { branch: new ObjectId(branch), date: { $gte: start, $lt: end } } },
@@ -494,8 +496,8 @@ let getSaleDetail = (req, res) => {
 
 let getReportFilter = (req, res) => {
 
-    var dateStart = req.query.star;
-    var dateEnd = req.query.end;
+    var dateStart = moment.tz(req.query.star, "America/Guayaquil");
+    var dateEnd = moment.tz(req.query.end, "America/Guayaquil");
     var branch = req.query.branch;
     var documentType = req.query.documentType;
     var state = req.query.state;
@@ -533,7 +535,7 @@ let getReportFilter = (req, res) => {
 
     let query = [{
             $addFields: {
-                date: { $dateToString: { date: "$date", timezone: "+00:00" } }
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
         {

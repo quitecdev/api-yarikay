@@ -3,9 +3,6 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const uniqueValidater = require('mongoose-unique-validator');
 
-// const moment = require('moment-timezone');
-// const dateLocal = moment.tz(Date.now(), "America/Guayaquil").format();
-// const timeZone = require('mongoose-timezone');
 
 const timeZone = require('mongoose-timezone');
 

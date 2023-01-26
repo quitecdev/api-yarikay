@@ -70,12 +70,15 @@ let updateforId = (req, res) => {
 let getCashier = (req, res) => {
     let branch = req.params.branch;
 
-    var start = moment().utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
-    var end = moment().utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+    const dateStart = moment.tz(Date.now(), "America/Guayaquil");
+    const dateEnd = moment.tz(Date.now(), "America/Guayaquil");
+
+    var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+    var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
 
     let query = [{
             $addFields: {
-                date: { $dateToString: { date: "$date", timezone: "+00:00" } }
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
         { $match: { branch: new ObjectId(branch), date: { $gte: start, $lt: end }, state: true } },

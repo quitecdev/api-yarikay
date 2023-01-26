@@ -1,7 +1,7 @@
 const OrderModel = require('../models/order.model');
 const _ = require('underscore');
 const moment = require('moment-timezone');
-const ObjectId = require('mongodb').ObjectID;
+const { ObjectId } = require('mongodb');
 
 let create = (req, res) => {
 
@@ -157,9 +157,13 @@ let getForDay = (req, res) => {
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
 
-    let query = [
+    let query = [{
+            $addFields: {
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
+            }
+        },
+        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
 
-        { $match: { branch: new ObjectId(branch) } },
         { $sort: { state: 1 } }
     ];
 
@@ -195,18 +199,18 @@ let updateStateOrder = (req, res) => {
 let getOrderKitchen = (req, res) => {
     let branch = req.params.branch;
 
-    // const dateStart = moment.tz(Date.now(), "America/Guayaquil");
-    // const dateEnd = moment.tz(Date.now(), "America/Guayaquil");
+    const dateStart = moment.tz(Date.now(), "America/Guayaquil");
+    const dateEnd = moment.tz(Date.now(), "America/Guayaquil");
 
-    // var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
-    // var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+    var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+    var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
 
     let query = [{
             $addFields: {
-                date: { $dateToString: { date: "$date", timezone: "-05:00" } }
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch, state: 0 } },
+        { $match: { branch: ObjectId(branch), state: 0, date: { $gte: start, $lt: end } } },
         { $unwind: '$details' },
         { $match: { 'details.state': 0, 'details.composed': true }, },
         {
