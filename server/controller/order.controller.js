@@ -162,7 +162,7 @@ let getForDay = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch: ObjectId(branch) } },
+        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
 
         { $sort: { state: 1 } }
     ];
@@ -210,7 +210,7 @@ let getOrderKitchen = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch: ObjectId(branch), state: 0 } },
+        { $match: { branch: ObjectId(branch), state: 0, date: { $gte: start, $lt: end } } },
         { $unwind: '$details' },
         { $match: { 'details.state': 0, 'details.composed': true }, },
         {
