@@ -1,4 +1,6 @@
 const moment = require('moment-timezone');
+const { ObjectId } = require('mongodb');
+const OrderModel = require('../models/order.model');
 
 let getDate = (req, res) => {
 
@@ -24,7 +26,7 @@ let getForDay = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch: ObjectId(branch) } },
+        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
 
         { $sort: { state: 1 } }
     ];
@@ -37,10 +39,13 @@ let getForDay = (req, res) => {
             });
         }
         res.json({
+            start,
+            end,
             orders
         });
     });
 }
+
 
 module.exports = {
     getDate,

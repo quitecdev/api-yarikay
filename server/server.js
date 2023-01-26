@@ -77,5 +77,5 @@ try {
         SocketController.disconnect(socket, io);
     })
 } catch (error) {
-    console.log(erro);
+    console.log(error);
 }
