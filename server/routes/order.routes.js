@@ -9,6 +9,7 @@ app.get('/orders', checkToken, OrderController.getAll);
 app.get('/order/:id', OrderController.getForId);
 app.get('/ordersday/:branch', OrderController.getForDay);
 app.get('/orderskitchen/:branch', OrderController.getOrderKitchen);
+app.get('/ordersdrink/:branch', OrderController.getOrderDrink);
 app.put('/order/:id', checkToken, OrderController.updateforId);
 app.put('/order/state/:id/:state', OrderController.updateStateOrder);
 app.put('/order/add/:id', OrderController.addDetailOrder);

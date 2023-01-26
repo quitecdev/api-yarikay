@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const uniqueValidater = require('mongoose-unique-validator');
 
-const timeZone = require('mongoose-timezone');
-
 let Schema = mongoose.Schema;
 
 let kardexSchema = new Schema({
@@ -58,6 +56,6 @@ let kardexSchema = new Schema({
 
 kardexSchema.plugin(uniqueValidater, {
     message: '{PATH} deber ser único'
-}).plugin(timeZone, { paths: ['date'] });
+});
 
 module.exports = mongoose.model('Kardex', kardexSchema);

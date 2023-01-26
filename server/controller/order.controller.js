@@ -244,6 +244,54 @@ let getOrderKitchen = (req, res) => {
 
 }
 
+let getOrderDrink = (req, res) => {
+    let branch = req.params.branch;
+
+    const dateStart = moment.tz(Date.now(), "America/Guayaquil");
+    const dateEnd = moment.tz(Date.now(), "America/Guayaquil");
+
+    var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+    var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+
+    let query = [{
+            $addFields: {
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
+            }
+        },
+        { $match: { branch: ObjectId(branch), state: 0, date: { $gte: start, $lt: end } } },
+        { $unwind: '$details' },
+        { $match: { 'details.state': 0, 'details.composed': false }, },
+        {
+            $project: {
+                _id: "$details._id",
+                number: "$number",
+                table: "$table",
+                cod: "$details.cod",
+                name: "$details.name",
+                quantity: "$details.quantity",
+                observation: "$details.observation",
+                timer: "$date",
+                composed: "$details.composed",
+                state: "$details.state",
+            }
+        },
+        { $sort: { state: 1 } }
+    ];
+
+    OrderModel.aggregate(query).exec((err, orders) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+        res.json({
+            orders
+        });
+    });
+
+}
+
 let addDetailOrder = (req, res) => {
 
     let body = req.body;
@@ -274,5 +322,6 @@ module.exports = {
     getForDay,
     updateStateOrder,
     getOrderKitchen,
+    getOrderDrink,
     addDetailOrder
 }

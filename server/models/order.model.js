@@ -3,10 +3,6 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const uniqueValidater = require('mongoose-unique-validator');
 
-
-const timeZone = require('mongoose-timezone');
-
-
 let Schema = mongoose.Schema;
 
 let orderSchema = new Schema({
@@ -74,7 +70,6 @@ let orderSchema = new Schema({
 });
 
 orderSchema
-    .plugin(AutoIncrement, { id: 'number_seq', inc_field: 'number' })
-    .plugin(timeZone, { paths: ['date'] });;
+    .plugin(AutoIncrement, { id: 'number_seq', inc_field: 'number' });
 
 module.exports = mongoose.model('Order', orderSchema);
