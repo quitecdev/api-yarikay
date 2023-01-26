@@ -18,15 +18,15 @@ let getForDay = (req, res) => {
     const dateStart = moment.tz(Date.now(), "America/Guayaquil");
     const dateEnd = moment.tz(Date.now(), "America/Guayaquil");
 
-    var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
-    var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+    // var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+    // var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
 
     let query = [{
             $addFields: {
                 date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
+        { $match: { branch: ObjectId(branch), date: { $gte: dateStart, $lt: dateEnd } } },
 
         { $sort: { state: 1 } }
     ];
