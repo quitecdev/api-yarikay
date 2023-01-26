@@ -22,7 +22,7 @@ let orderSchema = new Schema({
     },
     date: {
         type: Date,
-        default: new Date()
+        default: () => { return new Date() }
     },
     details: [{
         product: {

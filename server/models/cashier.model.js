@@ -10,7 +10,7 @@ let cashierSchema = new Schema({
     },
     date: {
         type: Date,
-        default: new Date()
+        default: () => { return new Date() }
     },
     opening: {
         cash: {
