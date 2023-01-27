@@ -117,7 +117,7 @@ let saleSchema = new Schema({
     fee: {
         state: {
             type: Number,
-            default: 0,
+            default: 1,
         },
         records: [{
             date: {
