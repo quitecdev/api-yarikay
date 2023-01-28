@@ -167,6 +167,7 @@ let getDetailSales = (req, res) => {
                 total: "$due.total",
                 prepaid: "$prepaid",
                 date: "$date",
+                fee: "$fee",
                 state: "$state",
             }
         },

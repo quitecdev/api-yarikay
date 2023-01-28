@@ -124,6 +124,68 @@ let createNote = (req, res) => {
     }
 }
 
+let createCredit = (req, res) => {
+
+    let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
+
+    let body = req.body;
+    try {
+
+        let sale = new SaleModel({
+            branch: body.branch,
+            documentType: body.documentType,
+            accessCode: body.accessCode,
+            document: body.document,
+            client: body.client,
+            details: body.details,
+            due: {
+                subTotal: body.due.subTotal,
+                tax: body.due.tax,
+                total: body.due.total,
+            },
+            payment: {
+                cash: body.payment.cash,
+                electronic: body.payment.electronic,
+                card: body.payment.card,
+                bank: body.payment.bank,
+                brand: body.payment.brand,
+                baucher: body.payment.baucher,
+                account: body.payment.account,
+            },
+            fee: body.fee,
+            user: body.user,
+            attachment: filename,
+            prepaid: body.prepaid,
+            observations: body.observations
+        });
+
+        PdfController.pdfCredit(req, body, filename);
+
+
+        sale.save((err, sale) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+
+            res.json({
+                ok: true,
+                sale
+            });
+        });
+
+
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            err: error.message
+        });
+    }
+}
+
+
 let deleteforId = (req, res) => {
     try {
         let id = req.params.id;
@@ -625,6 +687,7 @@ module.exports = {
     deleteforId,
     getSaleDetail,
     createInvoice,
+    createCredit,
     getFilterSales,
     getReportFilter,
 }

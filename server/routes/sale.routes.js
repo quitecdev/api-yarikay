@@ -6,6 +6,7 @@ const app = express();
 
 app.post('/sale/invoice', checkToken, SaleController.createInvoice);
 app.post('/sale/note', checkToken, SaleController.createNote);
+app.post('/sale/credit', checkToken, SaleController.createCredit);
 app.get('/sales', checkToken, SaleController.getAll);
 app.get('/sale/:id', SaleController.getForId);
 app.put('/sale/:id', checkToken, SaleController.updateforId);

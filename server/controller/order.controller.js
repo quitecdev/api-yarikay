@@ -212,11 +212,21 @@ let getOrderKitchen = (req, res) => {
         },
         { $match: { branch: ObjectId(branch), state: 0, date: { $gte: start, $lt: end } } },
         { $unwind: '$details' },
+
         { $match: { 'details.state': 0, 'details.composed': true }, },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
         {
             $project: {
                 _id: "$details._id",
                 number: "$number",
+                user: { "$arrayElemAt": ["$user", 0] },
                 table: "$table",
                 cod: "$details.cod",
                 name: "$details.name",
@@ -262,10 +272,19 @@ let getOrderDrink = (req, res) => {
         { $unwind: '$details' },
         { $match: { 'details.state': 0, 'details.composed': false }, },
         {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
+        {
             $project: {
                 _id: "$details._id",
                 number: "$number",
                 table: "$table",
+                user: { "$arrayElemAt": ["$user", 0] },
                 cod: "$details.cod",
                 name: "$details.name",
                 quantity: "$details.quantity",
