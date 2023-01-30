@@ -96,9 +96,7 @@ let getSaleTotal = (req, res) => {
         {
             $group: {
                 _id: null,
-                cash: { $sum: "$payment.cash" },
-                electronic: { $sum: "$payment.electronic" },
-                card: { $sum: "$payment.card" },
+                cash: { $sum: "$due.total" },
             }
         }
     ];
