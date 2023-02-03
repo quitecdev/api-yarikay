@@ -86,7 +86,7 @@ let updateforId = (req, res) => {
     try {
         let id = req.params.id;
 
-        let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
+        let body = _.pick(req.body, ['name', 'table', 'state']);
 
         OrderModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, order) => {
             if (err) {
