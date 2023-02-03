@@ -39,6 +39,21 @@ let orderSchema = new Schema({
             type: Number,
             default: 1
         },
+        unitary: {
+            type: Number
+        },
+        subotal: {
+            type: Number
+        },
+        iva: {
+            type: Boolean
+        },
+        sale: {
+            type: Number,
+        },
+        total: {
+            type: Number
+        },
         observation: {
             type: String,
         },
@@ -59,9 +74,23 @@ let orderSchema = new Schema({
             default: false,
         }
     }],
+    due: {
+        subTotal: {
+            type: Number
+        },
+        tax: {
+            type: Number
+        },
+        total: {
+            type: Number
+        }
+    },
     user: {
         type: Schema.ObjectId,
         ref: 'User'
+    },
+    attachment: {
+        type: String
     },
     state: {
         type: Number,

@@ -7,6 +7,7 @@ const FileModel = require('../models/file.model');
 const SaleModel = require('../models/sale.model');
 const PrefactureModel = require('../models/prefacture.model');
 const WorkShopModel = require('../models/workshop.model');
+const OrderModel = require('../models/order.model');
 
 var pdfMake = require('pdfmake/build/pdfmake.js');
 var pdfFonts = require('pdfmake/build/vfs_fonts.js');
@@ -21,7 +22,7 @@ let pdfExample = (req, res) => {
         { $match: { _id: new ObjectId(id) } },
     ];
 
-    SaleModel.aggregate(query).exec((err, prefactureResp) => {
+    OrderModel.aggregate(query).exec((err, prefactureResp) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -32,8 +33,8 @@ let pdfExample = (req, res) => {
         if (prefactureResp) {
             let sale = prefactureResp[0];
 
-            let document = sale.document;
-            let client = sale.client;
+            let document = sale.number;
+            let client = sale.name;
             let details = sale.details;
             let due = sale.due;
 
@@ -92,7 +93,7 @@ let pdfExample = (req, res) => {
                             ],
                             [{
                                     text: [
-                                        { text: 'Nº Nota Cédito: ', style: 'numberDocument', },
+                                        { text: 'Nº Orden: ', style: 'numberDocument', },
                                         { text: `${document}`, style: 'numberDocument' },
 
                                     ],
@@ -115,14 +116,8 @@ let pdfExample = (req, res) => {
                         text: [
                             { text: 'Fecha :', bold: true, margin: [0, 20] },
                             ` ${date} \n\n`,
-                            { text: 'CI/RUC :', bold: true, margin: [0, 20] },
-                            ` ${client.dni} \n\n`,
                             { text: 'Nombre :', bold: true, margin: [0, 20] },
-                            ` ${client.name} \n\n`,
-                            { text: 'Teléfono :', bold: true, margin: [0, 20] },
-                            ` ${client.phone} \n\n`,
-                            { text: 'Dirección :', bold: true, margin: [0, 20] },
-                            ` ${client.address} \n`,
+                            ` ${client} \n\n`,
                         ],
                         style: 'header'
                     },
@@ -168,15 +163,7 @@ let pdfExample = (req, res) => {
                             alignment: "center"
                         },
                         layout: 'headerLineOnly'
-                    },
-                    {
-                        text: [
-                            { text: 'Observación: ', fontSize: 9, bold: true },
-                            { text: `${sale.observations}`, fontSize: 9 },
-
-                        ],
-                        absolutePosition: { x: 20, y: 450 }
-                    },
+                    }
                 ],
                 footer: {
                     columns: [
@@ -640,16 +627,12 @@ let pdfNote = (req, sale, filename) => {
     });
 }
 
-
 let pdfCredit = (req, sale, filename) => {
 
-    let document = sale.document;
-    let client = sale.client;
+    let document = sale.number;
+    let client = sale.name;
     let details = sale.details;
     let due = sale.due;
-    let payment = sale.payment;
-
-    let qrCode = `${req.protocol}://${req.get('host')}/file/document/${filename}`;
 
     let stillUtc = moment.utc(sale.date).toDate();
     let date = moment(stillUtc).local().format('YYYY-MM-DD HH:mm');
@@ -707,7 +690,7 @@ let pdfCredit = (req, sale, filename) => {
                     ],
                     [{
                             text: [
-                                { text: 'Nº Nota Cédito: ', style: 'numberDocument', },
+                                { text: 'Nº Orden: ', style: 'numberDocument', },
                                 { text: `${document}`, style: 'numberDocument' },
 
                             ],
@@ -730,14 +713,8 @@ let pdfCredit = (req, sale, filename) => {
                 text: [
                     { text: 'Fecha :', bold: true, margin: [0, 20] },
                     ` ${date} \n\n`,
-                    { text: 'CI/RUC :', bold: true, margin: [0, 20] },
-                    ` ${client.dni} \n\n`,
                     { text: 'Nombre :', bold: true, margin: [0, 20] },
-                    ` ${client.name} \n\n`,
-                    { text: 'Teléfono :', bold: true, margin: [0, 20] },
-                    ` ${client.phone} \n\n`,
-                    { text: 'Dirección :', bold: true, margin: [0, 20] },
-                    ` ${client.address} \n`,
+                    ` ${client} \n\n`,
                 ],
                 style: 'header'
             },
@@ -783,15 +760,7 @@ let pdfCredit = (req, sale, filename) => {
                     alignment: "center"
                 },
                 layout: 'headerLineOnly'
-            },
-            {
-                text: [
-                    { text: 'Observación: ', fontSize: 9, bold: true },
-                    { text: `${sale.observations}`, fontSize: 9 },
-
-                ],
-                absolutePosition: { x: 20, y: 450 }
-            },
+            }
         ],
         footer: {
             columns: [
@@ -1151,6 +1120,221 @@ let pdfTransfer = (req, transfer, filename) => {
         file.save();
     });
 
+}
+
+let pdfOrder = (req, id, filename) => {
+    let query = [
+        { $match: { _id: new ObjectId(id) } },
+    ];
+
+    OrderModel.aggregate(query).exec((err, prefactureResp) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        if (prefactureResp) {
+            let sale = prefactureResp[0];
+
+            let document = sale.number;
+            let client = sale.name;
+            let details = sale.details;
+            let due = sale.due;
+
+            let stillUtc = moment.utc(sale.date).toDate();
+            let date = moment(stillUtc).local().format('YYYY-MM-DD HH:mm');
+
+            let column = [];
+            column.push({ text: 'Cod.', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Descripción', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Cant.', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'V. Unitario', style: 'tableHeader', fontSize: 10 });
+            column.push({ text: 'Total', style: 'tableHeader', fontSize: 10 });
+
+            let tableDetails = [];
+            tableDetails.push(column);
+
+            details.forEach(product => {
+                let cod = product.cod;
+                let name = product.name;
+                let quantity = product.quantity;
+                let unitary = product.unitary;
+                let subotal = product.subotal;
+                let detail = [];
+                detail.push({ text: `${cod}`, fontSize: 9 });
+                detail.push({ text: `${name}`, fontSize: 9 });
+                detail.push({ text: `${quantity}`, fontSize: 9, alignment: 'right' });
+                detail.push({ text: `${currencyFormatter.format(unitary, { code: 'USD',precision: 3 })}`, fontSize: 9, alignment: 'right' });
+                detail.push({ text: `${currencyFormatter.format(subotal, { code: 'USD',precision: 3 })}`, fontSize: 9, alignment: 'right' });
+
+                tableDetails.push(detail);
+            });
+
+            var docDefinition = {
+                pageSize: 'A5',
+                pageMargins: [20, 20, 20, 20],
+                content: [{
+                        columns: [
+                            [{
+                                    image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAABPCAYAAAAwV41eAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAADo1JREFUeNrsXctu48gVLXl6GWA4yCYJEjQdBMhy5C8w/QWWvsDUF1haZZNAEiabrCRlH0j+Asub7ALRX2D2foBmI0CSXTPLZIA4dTXnWldlPooPuUlbBRQs81Gsx6lzX1WkUsd0TBmpc+yC5qeHb37l6T9dnb/V2dX5Xuf12ee/h0eAvF1QOPrPWGdfZyflsrkGyegIkLcHjiHAQcCIdCam+KDzOZhEAuZUgyQ6VF3eHYejUcAg8bGEGJlCjEQJzMIAUhnsckyvDBxdnT/rPLG8fqnzx0PX68ggzQCHD0a4KKB43ugcHwHyNsAxKwgOFi03xx583eDoQax0j71xTEk6x8cjOI4pSyH1jr1xTCY4HJ0f4OtofGq9kvrzn/2CHUfkOwj++a9/RA2vMvk5Qq2Qzo8AOSww2DR0xeFYH+9rkAQNZY8J6nvRln7ulBwcmrF7ytVLDYp+tqd23kaZAlGXiwaCg+q90fnsJYJsLw4QDMyVzl7C4HBa6Tw9BM0DlMQYQ+N5d/p566brHfoPeT2nbREt1gCBjJ8BGDaJvHsXetDCGsFBdbgVwKQ4xaoF+gYDhJhDaXBcqJalEws5/6B+jCj2qY16UDqU9e9THDNFC82Wjb7XrQkcE9TBBWOc6udPWgSOCcTxoI26XicHHNfUsDw2gPi5VfuRRZrhgwrAcFCmBxCO6mSll/J3ANyjtomWTIDowelBrBBjxJYDyp0h0ze296cATgEYqwaY0lGRtkDvINESt1G05IkYB3qEdYdgdk+Nw70SgzFExwYQJ6svCAxH5wcAf1nw9jFEy0i1OL1LGeyygzJXu4UslL4tKFKWECn9hlgmY2HOF2EPD9bWtE0mbWEltWgC48iB7VqCowvWcCDWmmK2SnBMC4iWJRT7uWp5OjlAmR8K0ngP4CB/xkXDrJMRgHFWoF7s3SXFNG47QA7hag8LgGMCS6mR7nHoVdbtEaIl0OBYq1eQDgGQ2AIYTMMuFNFYvY60FMyjjgApbzJuI5oaGGevpSNFIG6epZhi5bo65FaFpusgMkUGOHzoGzdVnGgNBIcL3SNTmcUakI/ogzfLIJ74/UmAgxxvBJBBGSsFzLMNFjaQeZ5ES5JiKiwbUshJ11pUZGHqx0syCCjs0DaAvBe/A+gbG9BvqSAe4jpsBvcbxh49TApaBLRKON8VAKKV60FFcEzAVsTOg4plUX/SxE2NwB+aQeg3u8ytwQFA0Cw5V7vVYrwN8Vqf5xhRlAOogbSOcFwuMnoW34HZ3bWZmYIZEhVTgIfOLzQwJiUHsQe24D7oCvFNQdG7CizCrBanKda1AgQD4Bo+gVBZuu3FAPZAw32U9yBAZqPcMQjGgsVYxJlgDsXzHzAAtiKQ98+uTWaA0ro14cuwhoiHUXsXJJb1sSXqF9gsijKsxZExWXpqFwpxXkrE9BJ8Irbg8EWHPDmmoLtQmtuAA4E+BsKNCPytoUCeAxjUyXNDR+pmzaYExXQo2QOMwgubqKzTos4yMag9UP9E6GB+QTN6g3pECX6mmfg9fSmAXBn+kIElOJZo/ApIjwXKPVXA1S0aHmKwrpXhCQUYbgwFmAd7YclSLFoo3hKJHXL0zJU+dlaCNeTCqIERE+N2rWxENXQVFkeDhHPM9JkrAGsDCGaqjL30LdaROALl6wTTdyYGzQZoQ1GH7WzW9z1TavWxUcpgR5a6hwTu3CiDvKiDkuBgRXwPHOhb64kCUX2Nf9eGaHHEuTCvvXUyiIzirvJc5wY4wgyUy0HIK0/WYWoTlYZo6+ZRbQpwt2Zt1d1xBjiS1r8sS7CbkyKOhjgX21iEJzWyh2cj04xOZpnflwxhzICRpSt+LDplbgkORwx2YHOP8JhuzVqIllvhFPQqgGMt9aKSE8UXdZgaotUVk2hkA7aTA7BH7qp2NNrPuJ5nQGQ50FJhDBJESFoaClDZUHf3+87jE3CF3tGXOo0towiFlGf0IAE8Y1sxawA+SgDUWDD8yqaOJzWwR08gNhflRqODhBkzlDPAspNvpWJcwCQfC1mcJxK7v3nsbHR2YBF5av+1DWGKLyhvYj0pkgaLSh+LFXsIJfkZ8wrfUljACqoGEAOxzAaxRSNUknyEqJqJTlkX0GOs2CuF9RZ54PiJfs7wh44jFOBrtf9ODwmQc0uxLFlvnSKCbdlDmvdp5VlblnUxyFCYS5HJBjnycc9cE/tvlE2nJIAjyHu+cS/7bOIsuuXo83c/nMS/fnxa4901wMHRWQZnDz4Ra7GcYPZLh+PKgsVvcyZeT1nsUKgNIIaosFVMpZ/kJgEcNzadIsRKnNYpOckXVLzOAfTyz/89mf72fx05YP2UkH6Q4TRk/cT5y09/eSsmSmiYoSxWXGGmRnl1FO0JEybeLcopHCQ9KQkOx0BsrjIJGeiJ6wPDpUyK3qVoZJSj9U8Fe6wKzgwpAj4ltU/nW1x3ofWOa3F6kOE6v09hCKm8bv721WPXnCh45lKIPAbIXY7f59IQkXeiPDIGHpKcZYdmkJlBgTbha6m4rdGAGTqSzVwvq1OEO34ANmLtv8oKrq8NYHCnbtes/PU/X3VFvdZJEVvZLsFqrgbELS1DRJ4wsDcnjxL8oQD9BzgLPaPMNAC/hyNQMukl+vUBbSusd1QCCFDrG4dtTCbXoN8HeDWTNmfFJvuIGc0eWr+AYmwmKcqGFKTTmQaIXyspV9YvbS0kxF0WRjs3yFT3s4S1qjOw8UjoUI7w+sYJ+gYvuhrhmjkYNUA9iRXJ1f/vFIXVOr0rCA4fM36KirCvwmaAVmLWhxjYMAEYdP5KP4tjKZeYUQPDFKXBurRVTGVCZPTUAHpgmrrwc7jSa5pXNoX19X1SjBFb3BnAuIN4jPB7bvRhZEzIEPW4wrlnAVDTZS6cjZUWV3UKAqSHjjzIImMhQqQCefeldtfhRbXsNX3RVWxgNE8AJihixuP+uzIT6JjswOHr/IjstanuNJGxtqVyKiRi/vjdn6TzZquc/v4Pv1snXLeVkfrcyjjeU7sYy1a51NdExn1pia4NU66lMqayLOO5PujZxXND1C9IM0WFT+ZpMVBau1KeSaLhXF/bz7hmY4jXRVqdSjgva1maWVRJ7ard90oo3epGeikWi2t0hit8F/eiLNNMvMeAe/jLx+IUqygUymDSICzVblXVDah6ez2Ak+YATIqGeir97UpmoonQy3iGbAP3xwb9VNV5ua7rVRllzNxIo3wiEGpLv65gggmUp71G0HGcYyvjho+lsMO9Pj7CILomWPE/DdBKX3eKcujaUzx7ljIg7NCbltm/AlAwW13lXH6PNg8SrL0yzssrZb9s4SAAcdDxYzGDrYCFDqNZ4ulOiSlXbYAuqyvEVpgw0M/8JHjuACzRS7FcbANkKgVgHBTzUliW03ucvzItmJL+qUGdRkQZgLBTZ4hOtKoMGIAX2m5A/VXTGP6U7SueEgC3tUCSgCj0GSeFPRZlNl8DsB70iZUFi/joT1/tlkmWYY+hSl57+uIACTHQF/hNeohjCZIQooU6zociVyWtBDskRVBjlfIKCiFaYsEernq+lLBoYjZb6mc8YsD9DN1iJfpTqf0Qhi042OdR+57gMgAh0RBA275R+3s1smYW6QhdiJYBwHVZsf6fdFlzdIwPK0kZDikH1peZlsLXIhmpCns4YAJeQT8VTsXrjDZwf96V1EGoLaND+KfKrEmlgZ6I2RJb6iEu2GYhRFUtyhSBRJd7hVkbsEghitf/E7MMQf33Qoy4EEuRMG17FuxxLtqvoABHwoJQCeb7ewB4miDuuLyvcX+YwHQzs0xDtMQlt7PO8lbfFWWQEErUOTKh/iKh0UGCshViZl1jpq4yBiJWu7hCWjKfwazkG+AZgGF4UfM1i0nDn8GmbRZ7BEKccZbilYAwTxjIKZ7pZZTXRZ+Y/gtmaCdDtJRZRe+pChbTW/ScfkZuzUcCEWT0St47A/vULmJeIzh8zNBpW14bhWUJQRmrBd5WX1kE8o4A2VdO5wccULaQ3ASLiz3Foc2AgzUuVfmvRlB7rfbYvGvB7H6Sv1VfnZBSfg+DtqqbPTBTh0IpTkueuId1k/skhhCr3fslX1JMzGH9jpVOCwDyWTjkXHQemYPrOgYUL9qnAar1C9aQ7/Lr2WsMemSsGZWskqY4hgI0PPtXJetEYLV+SXKn4eCgDtsI+l+gEy9hklIn3ZV9o6B4l3pQ5+uyxWZ0Xhi1LnBvF227zPAvRWr3ufYAoIsyyuQoelhgU1krADJR+4t/YyiSc+G3uGbztKiYoK9XYyAv6hJfAhzTqq+HEtszzvE3z8IyfVKOMJ9Lfcen6QCRM7FrzKApLyAGE1yjE9fKIgoLgJH4ivS1pzWBw1c7r+a8Rkby4Sw7gwjy4HNhcdQVoiwSim+oKq4AbDpAWD+Yq/0vTUmgPDEHYik+wJIJFMFOg5yV6oX8EupHr2ad4or3tfS/xOdQTlSzEyP/U8p5FzOLPlA8g6VDA3+Ke+jzo0t+N6mReCnAuqaBZDpfvBZwtAEgH4QWn5XYnPwI1umBdSRQJgmm7bpG07bwVyEsxMoXBUcbABIlsEle8qAHfFS7d54R5Z8TeKB7cGR1UWNd6/xGH+sc/S/9la2m6yCsSLLCN6w4gLwXhdij9q0MemAJlOuipmQKOC6a8Am2RjMI6H8NxfOmIn13hd5SN3twojr60EfKgIMV54umfJ+vDZ5UEhkb2PIf1P4rIkqLrrpM2xRLRqkC3krEaZaq4j7at6iDcPxlDhaJld0+4Lx0yA8JsIn7AHGRaaXAsUYTgNzn/aZ9GqXxDCJ0EX5ZzBxWi1+yuGnZ12IXNHk57sF7kXk129dq37F196W/6tl6gCSAJFLlVkOtyrzDtCJYXNTVVbugY9yWbwC3BiACJOMS1sx2b0xdHtO3lDptrDQU17Gy29W3UiV3yB1TSwEigOKq56u0CAifIPeD1/DlyWM6psam/wswAA7IeoKHebD6AAAAAElFTkSuQmCC',
+                                    width: 80,
+                                },
+                                {
+                                    text: [
+                                        { text: 'Dirección Matriz:', fontSize: 8, bold: true },
+                                        { text: `ISLA SANTA FE N43-168 y AV. RIO COCA`, fontSize: 8 },
+
+                                    ],
+                                },
+                                {
+                                    text: [
+                                        { text: 'Dirección:', fontSize: 8, bold: true },
+                                        { text: `INTEROCEANICA SN y AV. SIMON BOLIVAR`, fontSize: 8 },
+
+                                    ],
+                                }
+                            ],
+                            [{
+                                    text: [
+                                        { text: 'Nº Orden: ', style: 'numberDocument', },
+                                        { text: `${document}`, style: 'numberDocument' },
+
+                                    ],
+                                },
+                                {
+                                    text: [
+                                        { text: 'R.U.C.:', style: 'fontbold9' },
+                                        { text: `1711826790001`, style: 'font9' },
+
+                                    ],
+                                },
+                                { text: 'FERNANDEZ ORMAZA JUAN CARLOS', fontSize: 10, bold: true },
+
+                            ]
+                        ],
+                        margin: [0, 0, 0, 15],
+
+                    },
+                    {
+                        text: [
+                            { text: 'Fecha :', bold: true, margin: [0, 20] },
+                            ` ${date} \n\n`,
+                            { text: 'Nombre :', bold: true, margin: [0, 20] },
+                            ` ${client} \n\n`,
+                        ],
+                        style: 'header'
+                    },
+                    {
+                        style: 'tableDetails',
+                        table: {
+                            headerRows: 1,
+                            widths: [50, 120, 25, 60, 60],
+                            body: tableDetails,
+                            alignment: "center"
+                        },
+                        layout: 'lightHorizontalLines'
+                    },
+                    {
+                        style: 'tableDue',
+                        table: {
+                            headerRows: 1,
+                            widths: [50, 120, 25, 60, 60],
+                            body: [
+                                ['', '', '', '', ''],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Subtotal`, alignment: 'right', fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.subTotal, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
+                                ],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Iva 12%`, alignment: 'right', fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.tax, { code: 'USD',precision: 2 })}`, alignment: 'right', fontSize: 9 },
+                                ],
+                                [
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: '' },
+                                    { text: `Total`, alignment: 'right', bold: true, fontSize: 9 },
+                                    { text: `${currencyFormatter.format(due.total, { code: 'USD',precision: 2 })}`, alignment: 'right', bold: true, fontSize: 9 },
+                                ],
+                            ],
+                            alignment: "center"
+                        },
+                        layout: 'headerLineOnly'
+                    }
+                ],
+                footer: {
+                    columns: [
+
+                        {
+                            alignment: 'right',
+                            text: `${document}`,
+                            fontSize: 8,
+                        }
+                    ],
+                    margin: [20, 0]
+                },
+                styles: {
+                    header: {
+                        fontSize: 9,
+                        lineHeight: 0.7,
+                    },
+                    tableHeader: {
+                        bold: true,
+                        fontSize: 9,
+                        color: 'black'
+                    },
+                    tableDetails: {
+                        margin: [0, 10, 0, 0],
+                        fontSize: 9,
+                    },
+                    tableDue: {
+                        margin: [0, 0, 0, 5],
+                        fontSize: 9,
+                    },
+                    numberDocument: {
+                        fontSize: 11,
+                        bold: true,
+                        margin: [0, 50],
+                    },
+                    fontbold9: {
+                        fontSize: 9,
+                        bold: true,
+                    },
+                    font9: {
+                        fontSize: 9,
+                    }
+
+
+                }
+            };
+
+
+            const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+            pdfDocGenerator.getBase64((data) => {
+                let file = FileModel({
+                    filename: filename,
+                    metadata: data,
+                    contentType: 'application/pdf',
+                    size: data.length
+                });
+
+                file.save();
+            });
+        } else {
+            return res.status(400).json({
+                ok: false,
+                err: 'No se ha encontrado registros'
+            });
+        }
+    });
 }
 
 // let pdfCredit = (req, sale, filename) => {
@@ -1904,4 +2088,5 @@ module.exports = {
     pdfExample,
     pdfCredit,
     pdfNote,
+    pdfOrder
 }

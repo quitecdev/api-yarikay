@@ -1,9 +1,12 @@
 const OrderModel = require('../models/order.model');
+const PdfController = require('./pdf.controller');
 const _ = require('underscore');
 const moment = require('moment-timezone');
 const { ObjectId } = require('mongodb');
 
 let create = (req, res) => {
+
+    let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
 
     let body = req.body;
     try {
@@ -13,6 +16,12 @@ let create = (req, res) => {
             table: body.table,
             details: body.details,
             branch: body.branch,
+            due: {
+                subTotal: body.due.subTotal,
+                tax: body.due.tax,
+                total: body.due.total,
+            },
+            attachment: filename,
             user: body.user,
         });
 
@@ -23,6 +32,8 @@ let create = (req, res) => {
                     err
                 });
             }
+
+            PdfController.pdfOrder(req, order._id, filename);
 
             res.json({
                 ok: true,
@@ -75,7 +86,7 @@ let updateforId = (req, res) => {
     try {
         let id = req.params.id;
 
-        let body = _.pick(req.body, ['name', 'table', 'state']);
+        let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
 
         OrderModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, order) => {
             if (err) {
@@ -317,8 +328,10 @@ let addDetailOrder = (req, res) => {
 
     let id = req.params.id;
 
+    let filename = `${Math.random().toString(36).substring(2, 15)}.pdf`
+
     OrderModel
-        .findOneAndUpdate({ "_id": id }, { $push: { "details": body.details } }, { safe: true, upsert: true, new: true },
+        .findOneAndUpdate({ "_id": id }, { attachment: filename, due: body.due, $push: { "details": body.details } }, { safe: true, upsert: true, new: true },
             (err, order) => {
                 if (err) {
                     return res.status(400).json({
@@ -326,6 +339,9 @@ let addDetailOrder = (req, res) => {
                         err
                     });
                 }
+
+                PdfController.pdfOrder(req, id, filename);
+
                 res.json({
                     order
                 });
