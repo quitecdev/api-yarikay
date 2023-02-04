@@ -121,7 +121,7 @@ let getForId = (req, res) => {
     try {
         let id = req.params.id;
 
-        TableModel.find({ id: id, state: true }).exec((err, table) => {
+        TableModel.find({ id: id }).exec((err, table) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
