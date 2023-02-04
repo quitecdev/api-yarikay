@@ -137,7 +137,7 @@ let getForId = (req, res) => {
     try {
         let id = req.params.id;
 
-        OrderModel.find({ _id: id }).exec((err, order) => {
+        OrderModel.find({ _id: id }).populate("table").exec((err, order) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
