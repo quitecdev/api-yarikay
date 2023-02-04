@@ -173,8 +173,38 @@ let getForDay = (req, res) => {
                 date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
             }
         },
-        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
 
+        { $match: { branch: ObjectId(branch), date: { $gte: start, $lt: end } } },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'user',
+                foreignField: '_id',
+                as: 'user'
+            }
+        },
+        {
+            $lookup: {
+                from: 'tables',
+                localField: 'table',
+                foreignField: '_id',
+                as: 'table'
+            }
+        },
+        {
+            $project: {
+                _id: "$_id",
+                number: "$number",
+                name: "$name",
+                user: { "$arrayElemAt": ["$user", 0] },
+                table: { "$arrayElemAt": ["$table", 0] },
+                name: "$details",
+                due: "$due",
+                attachment: "$attachment",
+                date: "$date",
+                state: "$state"
+            }
+        },
         { $sort: { state: 1 } }
     ];
 
