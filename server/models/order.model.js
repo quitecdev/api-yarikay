@@ -17,8 +17,8 @@ let orderSchema = new Schema({
         type: String
     },
     table: {
-        type: Number,
-        required: [true, 'Mesa es requerido']
+        type: Schema.ObjectId,
+        ref: 'Table'
     },
     date: {
         type: Date,

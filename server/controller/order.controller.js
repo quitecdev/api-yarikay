@@ -234,11 +234,19 @@ let getOrderKitchen = (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: 'tables',
+                localField: 'table',
+                foreignField: '_id',
+                as: 'table'
+            }
+        },
+        {
             $project: {
                 _id: "$details._id",
                 number: "$number",
                 user: { "$arrayElemAt": ["$user", 0] },
-                table: "$table",
+                table: { "$arrayElemAt": ["$table", 0] },
                 cod: "$details.cod",
                 name: "$details.name",
                 quantity: "$details.quantity",
@@ -291,11 +299,20 @@ let getOrderDrink = (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: 'tables',
+                localField: 'table',
+                foreignField: '_id',
+                as: 'table'
+            }
+        },
+        {
             $project: {
                 _id: "$details._id",
                 number: "$number",
                 table: "$table",
                 user: { "$arrayElemAt": ["$user", 0] },
+                table: { "$arrayElemAt": ["$table", 0] },
                 cod: "$details.cod",
                 name: "$details.name",
                 quantity: "$details.quantity",
