@@ -198,7 +198,7 @@ let getForDay = (req, res) => {
                 name: "$name",
                 user: { "$arrayElemAt": ["$user", 0] },
                 table: { "$arrayElemAt": ["$table", 0] },
-                name: "$details",
+                details: "$details",
                 due: "$due",
                 attachment: "$attachment",
                 date: "$date",
