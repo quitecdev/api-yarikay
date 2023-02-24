@@ -679,6 +679,52 @@ cancelSale = (req, res) => {
     });
 }
 
+
+let getFilterProducts = (req, res) => {
+    let branch = req.params.branch;
+
+
+    const dateStart = moment.tz(req.query.star, "America/Guayaquil");
+    const dateEnd = moment.tz(req.query.end, "America/Guayaquil");
+
+
+    var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
+    var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+
+    let query = [{
+            $addFields: {
+                date: { $dateToString: { date: "$date", timezone: "America/Guayaquil" } }
+            }
+        },
+        { $match: { branch: new ObjectId(branch), date: { $gte: start, $lt: end } } },
+        {
+            $unwind: "$details"
+        },
+        {
+            $group: {
+                _id: "$details.product",
+                cod: { $first: '$details.cod' },
+                name: { $first: '$details.name' },
+                value: { $sum: "$details.quantity" },
+            }
+        },
+        { $sort: { value: -1 } },
+    ];
+
+
+    SaleModel.aggregate(query).exec((err, sales) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+        res.json({
+            sales
+        });
+    });
+}
+
 module.exports = {
     getAll,
     getForId,
@@ -690,4 +736,5 @@ module.exports = {
     createCredit,
     getFilterSales,
     getReportFilter,
+    getFilterProducts,
 }

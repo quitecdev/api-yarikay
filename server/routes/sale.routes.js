@@ -14,6 +14,7 @@ app.delete('/sale/:id', checkToken, SaleController.deleteforId);
 
 app.get('/sales/detail/:id', SaleController.getSaleDetail);
 app.get('/sales/filter/:branch', SaleController.getFilterSales);
+app.get('/sales/product/:branch', SaleController.getFilterProducts);
 app.get('/report/sales/', SaleController.getReportFilter);
 
 module.exports = app;

@@ -286,7 +286,7 @@ let getOrderKitchen = (req, res) => {
                 state: "$details.state",
             }
         },
-        { $sort: { state: 1 } }
+        { $sort: { timer: 1 } }
     ];
 
     OrderModel.aggregate(query).exec((err, orders) => {

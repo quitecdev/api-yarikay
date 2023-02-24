@@ -59,7 +59,7 @@ let orderSchema = new Schema({
         },
         timer: {
             type: Date,
-            default: Date
+            default: () => { return new Date() }
         },
         composed: {
             type: Boolean,
