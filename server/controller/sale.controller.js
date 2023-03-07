@@ -644,6 +644,8 @@ let getReportFilter = (req, res) => {
                 cash: "$payment.cash",
                 electronic: "$payment.electronic",
                 card: "$payment.card",
+                subTotal: "$due.subTotal",
+                tax: "$due.tax",
                 total: "$due.total",
                 prepaid: "$prepaid",
                 images: "$images",
