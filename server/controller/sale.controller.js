@@ -423,9 +423,8 @@ let getFilterSales = (req, res) => {
     let branch = req.params.branch;
 
 
-    const dateStart = moment.tz(req.query.star, "America/Guayaquil");
-    const dateEnd = moment.tz(req.query.end, "America/Guayaquil");
-
+    var dateStart = moment.tz(req.query.star, "America/Guayaquil");
+    var dateEnd = moment.tz(req.query.end, "America/Guayaquil");
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
@@ -463,8 +462,7 @@ let getFilterSales = (req, res) => {
                 date: "$date",
                 state: "$state",
             }
-        },
-        { $sort: { date: -1 } },
+        }
     ];
 
 
@@ -560,6 +558,7 @@ let getReportFilter = (req, res) => {
 
     var dateStart = moment.tz(req.query.star, "America/Guayaquil");
     var dateEnd = moment.tz(req.query.end, "America/Guayaquil");
+
     var branch = req.query.branch;
     var documentType = req.query.documentType;
     var state = req.query.state;
@@ -568,6 +567,7 @@ let getReportFilter = (req, res) => {
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
+
 
     var filter = {};
 
@@ -654,7 +654,6 @@ let getReportFilter = (req, res) => {
                 user: "$user.name"
             }
         },
-        { $sort: { date: -1 } },
     ];
 
     SaleModel.aggregate(query).exec((err, sales) => {
