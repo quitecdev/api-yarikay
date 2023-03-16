@@ -513,7 +513,6 @@ let getSaleDetail = (req, res) => {
         { $project: { "product_ids": 0, "stock_product": 0 } }
     ];
 
-
     SaleModel.aggregate(query).exec((err, sale) => {
         if (err) {
             return res.status(400).json({
@@ -540,7 +539,6 @@ let getReportFilter = (req, res) => {
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
-
 
     var filter = {};
 
@@ -642,7 +640,6 @@ let getReportFilter = (req, res) => {
     });
 }
 
-
 cancelSale = (req, res) => {
 
     let id = req.params.id;
@@ -657,10 +654,8 @@ cancelSale = (req, res) => {
 let getFilterProducts = (req, res) => {
     let branch = req.params.branch;
 
-
     const dateStart = moment.tz(req.query.star, "America/Guayaquil");
     const dateEnd = moment.tz(req.query.end, "America/Guayaquil");
-
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
@@ -684,7 +679,6 @@ let getFilterProducts = (req, res) => {
         },
         { $sort: { value: -1 } },
     ];
-
 
     SaleModel.aggregate(query).exec((err, sales) => {
         if (err) {
