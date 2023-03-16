@@ -351,31 +351,6 @@ let getForId = (req, res) => {
                     as: 'stock'
                 }
             },
-
-
-            // {
-            //     $addFields: {
-            //         'details.product.existence': {
-            //             $map: {
-            //                 input: "$details.product",
-            //                 as: "i",
-            //                 in: {
-            //                     $mergeObjects: [
-            //                         "$$i",
-            //                         {
-            //                             $first: {
-            //                                 $filter: {
-            //                                     input: "$stock",
-            //                                     cond: { $eq: ["$$this.product", "$$i._id"] }
-            //                                 }
-            //                             }
-            //                         }
-            //                     ]
-            //                 }
-            //             }
-            //         },
-            //     },
-            // },
             {
                 $project: {
                     _id: '$_id',
@@ -422,9 +397,8 @@ let getForId = (req, res) => {
 let getFilterSales = (req, res) => {
     let branch = req.params.branch;
 
-
-    var dateStart = moment.tz(req.query.star, "America/Guayaquil");
-    var dateEnd = moment.tz(req.query.end, "America/Guayaquil");
+    var dateStart = moment.tz(new Date(req.query.star), "America/Guayaquil");
+    var dateEnd = moment.tz(new Date(req.query.end), "America/Guayaquil");
 
     var start = moment(dateStart).utc(true).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format();
     var end = moment(dateEnd).utc(true).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format();
@@ -464,7 +438,6 @@ let getFilterSales = (req, res) => {
             }
         }
     ];
-
 
     SaleModel.aggregate(query).exec((err, sales) => {
         if (err) {
