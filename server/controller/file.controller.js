@@ -45,7 +45,6 @@ let getFile = (req, res) => {
 let uploadFile = (req, res) => {
 
     const file = req.file;
-    console.log(req);
 
     var extension = getFileExtension(file.originalname);
     let filename = `${Math.random().toString(36).substring(2, 15)}.${extension}`;
