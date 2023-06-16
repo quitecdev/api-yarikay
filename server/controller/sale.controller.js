@@ -693,6 +693,50 @@ let getFilterProducts = (req, res) => {
     });
 }
 
+let updateDocumentNumber = (req, res) => {
+    try {
+        let id = req.params.id;
+
+        let body = req.body;
+
+        SaleModel.findById(id, (err, sale) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+            if (sale) {
+
+                sale.document = body.document;
+                SaleModel.findByIdAndUpdate(id, sale, (err, saleUpdate) => {
+                    if (err) {
+                        return res.status(400).json({
+                            ok: false,
+                            err
+                        });
+                    }
+                    res.json({
+                        ok: true,
+                        sale
+                    });
+                });
+            } else {
+                return res.status(400).json({
+                    ok: false,
+                    err: 'El id no existe'
+                });
+            }
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            err: error.message
+        });
+    }
+}
+
 module.exports = {
     getAll,
     getForId,
@@ -705,4 +749,5 @@ module.exports = {
     getFilterSales,
     getReportFilter,
     getFilterProducts,
+    updateDocumentNumber,
 }

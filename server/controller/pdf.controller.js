@@ -322,7 +322,7 @@ let pdfInvoice = (req, sale, filename) => {
                             ],
                         },
                         { text: 'CONTRIBUYENTE RÉGIMEN RIMPE', fontSize: 9, bold: true },
-                        { text: 'OBLIGADO A LLEVAR CONTABILIDAD SI', fontSize: 9, bold: true },
+                        { text: 'OBLIGADO A LLEVAR CONTABILIDAD NO', fontSize: 9, bold: true },
                     ]
                 ],
                 margin: [0, 0, 0, 15],
