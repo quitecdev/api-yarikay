@@ -96,7 +96,7 @@ let updateforId = (req, res) => {
 let getAll = (req, res) => {
     try {
 
-        TableModel.find({ state: true }).exec((err, tables) => {
+        TableModel.find({ state: true }).sort({ name: 1 }).exec((err, tables) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
