@@ -79,7 +79,7 @@ let pdfExample = (req, res) => {
                                 {
                                     text: [
                                         { text: 'Dirección Matriz:', fontSize: 8, bold: true },
-                                        { text: `ISLA SANTA FE N43-168 y AV. RIO COCA`, fontSize: 8 },
+                                        { text: `DE LAS PALMERAS`, fontSize: 8 },
 
                                     ],
                                 },
