@@ -19,5 +19,5 @@ app.get('/sales/product/:branch', SaleController.getFilterProducts);
 app.get('/report/sales/', SaleController.getReportFilter);
 
 app.get('/invoice/accescode', InvoiceController.getAllInvoices);
-
+app.get('/sales/filename/:filename', SaleController.getSaleForFilename);
 module.exports = app;

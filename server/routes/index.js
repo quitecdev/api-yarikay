@@ -20,6 +20,7 @@ app.use(require('./file.routes'));
 app.use(require('./provider.routes'));
 app.use(require('./purchase.routes'));
 app.use(require('./transfer.routes'));
+app.use(require('./tax.routes'));
 app.use(require('./dashboard.routes'));
 app.use(require('./cashier.routes'));
 app.use(require('./cancel.routes'));

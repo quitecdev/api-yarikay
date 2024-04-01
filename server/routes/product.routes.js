@@ -10,7 +10,7 @@ app.post('/product/import', checkToken, ProductController.importProduct);
 app.get('/products', ProductController.getAll)
 app.get('/product/:id', checkToken, ProductController.getForId)
 app.get('/products/:branch', checkToken, ProductController.getProductStock)
-app.put('/product/:id', checkToken, ProductController.updateforId);
+app.put('/product/:id', ProductController.updateforId);
 app.delete('/product/:id', checkToken, ProductController.deleteforId);
 
 

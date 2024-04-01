@@ -113,8 +113,85 @@ let uploadFileBase = (req, res) => {
     });
 }
 
+let getAllFiles = (req, res) => {
+    try {
+
+        FileModel.find({}, { _id: 1, filename: 1 }).exec((err, files) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+            res.json({
+                ok: true,
+                files
+            });
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            err: error.message
+        });
+    }
+}
+
+let deleteforId = (req, res) => {
+    try {
+        let id = req.params.id;
+
+        FileModel.findByIdAndDelete(id, (err, file) => {
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+            res.json({
+                ok: true
+            });
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            err: error.message
+        });
+    }
+}
+
+
+let getFileForName = (req, res) => {
+
+    let name = req.params.filename;
+    FileModel.findOne({ filename: name }, (err, file) => {
+
+
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+        if (file) {
+            res.json({
+                ok: true,
+            })
+        } else {
+            res.json({
+                ok: false,
+            })
+        }
+    });
+}
+
+
 module.exports = {
     getFile,
     uploadFile,
-    uploadFileBase
+    uploadFileBase,
+    getAllFiles,
+    deleteforId,
+    getFileForName
 }

@@ -737,6 +737,25 @@ let updateDocumentNumber = (req, res) => {
     }
 }
 
+let getSaleForFilename = (req, res) => {
+
+    let filename = req.params.filename;
+
+    SaleModel.find({ attachment: filename }).exec((err, sale) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+        res.json({
+            ok: true,
+            sale
+        });
+    });
+
+}
+
 module.exports = {
     getAll,
     getForId,
@@ -750,4 +769,5 @@ module.exports = {
     getReportFilter,
     getFilterProducts,
     updateDocumentNumber,
+    getSaleForFilename
 }

@@ -95,7 +95,6 @@ let updateforId = (req, res) => {
 
 let getAll = (req, res) => {
     try {
-
         TaxModel.find({ state: true }).sort('name').exec((err, taxs) => {
             if (err) {
                 return res.status(400).json({
